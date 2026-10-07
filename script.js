@@ -6,13 +6,82 @@ function formatPrice(cents) {
 const MAXSIZE = 16;
 const categories = ["coffee", "tea", "pastry"];
 
+document.querySelector("#categories").addEventListener("click", (event) =>
+{
+  //Trouver comment récupérer tous les  parents des product-category === coffee/tea/pastry
+  const products =  document.querySelector(".product");
+  const coffees = products.querySelectorAll(".coffee");
+  const teas = products.querySelectorAll(".tea");
+  const pastries = products.querySelectorAll(".pastry");
+  
+  if(event.target.value === "all")
+  {
+    for(coffeeProduct of coffees)
+    {
+      coffeeProduct.classList.remove("is-hidden");
+    }
+    for(teaProduct of teas)
+    {
+      teaProduct.classList.remove("is-hidden");
+    }
+    for(pastryProduct of pastries)
+    {
+      pastryProduct.classList.remove("is-hidden");
+    }
+  }
+  else if (event.target.value === "coffee")
+  { 
+    for(coffeeProduct of coffees)
+    {
+      coffeeProduct.classList.remove("is-hidden");
+    }
+    for(teaProduct of teas)
+    {
+      teaProduct.classList.add("is-hidden");
+    }
+    for(pastryProduct of pastries)
+    {
+      pastryProduct.classList.add("is-hidden");
+    }
+  }
+  else if(event.target.value === "tea")
+  {
+    for(coffeeProduct of coffees)
+    {
+      coffeeProduct.classList.add("is-hidden");
+    }
+    for(teaProduct of teas)
+    {
+      teaProduct.classList.remove("is-hidden");
+    }
+    for(pastryProduct of pastries)
+    {
+      pastryProduct.classList.add("is-hidden");
+    }
+  }
+  else if(event.target.value === "pastry")
+  {
+    for(coffeeProduct of coffees)
+    {
+      coffeeProduct.classList.add("is-hidden");
+    }
+    for(teaProduct of teas)
+    {
+      teaProduct.classList.add("is-hidden");
+    }
+    for(pastryProduct of pastries)
+    {
+      pastryProduct.classList.remove("is-hidden");
+    }
+  }
+});
+
 const order =
 {
   lines: [],
   add: function (product) 
   {  
     const subTotalSpan = document.querySelector("#ticket-total");
-    const line = document.createElement("li");
     let found = false;
 
     if(!product) throw new Error("Illegal argument, product added to the order is null.");
@@ -29,6 +98,7 @@ const order =
     if(!found)  //Avoid duplicates. Only create elements once
     {
       this.lines.push({id: product.id, name: product.name, price: product.price, quantity: 1});
+      const line = document.createElement("li");
       const lineName = document.createElement("span");
       const lineQuantity = document.createElement("span");
       const linePrice = document.createElement("span");
@@ -56,6 +126,7 @@ const order =
 
       lineRemoveButton.addEventListener("click", (event ) =>
       {
+        //this.remove(product.id);
         document.querySelector("#ticket-lines").removeChild(line);
         const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
         if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
@@ -75,6 +146,7 @@ const order =
         }
         else
         {
+          //this.remove(id);
           document.querySelector("#ticket-lines").removeChild(line);
           const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
           if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
@@ -89,7 +161,7 @@ const order =
     else
     {
       const ticketLines = document.querySelector("#ticket-lines");
-      for(ticketLine of ticketLines.childNodes)
+      for(const ticketLine of ticketLines.childNodes)
       {
         if(ticketLine.querySelector(".line-name").textContent === product.name)
         { 
@@ -100,10 +172,16 @@ const order =
     }
     subTotalSpan.textContent = this.getSubTotal();
   },
-  // remove: function(id)
-  // {
-
-  // },
+  remove: function(id)
+  {//Comment récupérer line à partir de l'id seul ?
+    // const ticketLines = document.querySelector("#ticket-lines");
+    // const line = ticketLines.
+    // ticketLines.removeChild(line);
+    // const indexToRemove = this.lines.findIndex((element) => element.id === id);
+    // if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);
+    // subTotalSpan.textContent = this.getSubTotal();
+    // if(this.lines.length === 0) document.querySelector("#ticket-empty").classList.remove("is-hidden");
+  },
   getSubTotal: function()
   {
     let subTotal = 0;
@@ -115,7 +193,7 @@ const order =
   }
 }
 
-function createProductCard(product)    //createProductCard(name, category, )
+function createProductCard(product)
 {
   if(!product) throw new Error("Illegal argument, no product given.");
   if(product.name === undefined || product.category === undefined || product.price === undefined || product.available === undefined) throw new Error("Illegal property, missing properties");
@@ -175,7 +253,6 @@ function renderMenu()
     createProductCard(menu[i]);
   }
 }
-
 
 // Étape 1 · Afficher la carte
 renderMenu();
