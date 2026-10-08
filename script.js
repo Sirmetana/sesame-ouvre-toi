@@ -3,8 +3,12 @@ function formatPrice(cents) {
   return (cents / 100).toFixed(2).replace(".", ",") + " €";
 }
 
+//Optimally, these should be externalised in a config file
 const MAXSIZE = 16;
 const categories = ["coffee", "tea", "pastry"];
+const promoCode = "BARISTA";
+
+let promo = false;
 
 document.querySelector("#categories").addEventListener("click", (event) =>
 {
@@ -63,6 +67,28 @@ document.querySelector("#categories").addEventListener("click", (event) =>
         throw new Error("Illegal argument, unknown product category");   
   }
 });
+
+document.querySelector("#promo-form").addEventListener("submit", (event) =>
+{
+  event.preventDefault();
+  if(document.querySelector("#promo-code").value.toUpperCase() === promoCode)
+  {
+    promo = true;
+    document.querySelector("#promo-message").textContent = "Code promo validé, vous profitez de -10 % !";
+  }
+  else
+  {
+    promo = false;
+    document.querySelector("#promo-message").textContent = "Code inconnu. N'essayez pas de tricher !";
+  }
+  order.getSubTotal();
+  document.querySelector("#promo-code").value = "";
+});
+
+// document.querySelector("#promo-form").addEventListener("submit", (event) =>
+// {
+
+// });
 
 const order =
 {
@@ -178,7 +204,9 @@ const order =
     {
       subTotal += this.lines[i].price * this.lines[i].quantity;
     }
-    return formatPrice(subTotal);
+    const discount = subTotal * 0.1 * promo;
+    document.querySelector("#ticket-discount").textContent = formatPrice(parseInt(discount));
+    return formatPrice(subTotal - discount);
   }
 }
 
