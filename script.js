@@ -14,15 +14,15 @@ document.querySelector("#categories").addEventListener("click", (event) =>
   switch(event.target.value)
   {
     case "all" :
-      for(product of products)
+      for(const product of products)
       {
         product.classList.remove("is-hidden");
       }
       break;
     case "coffee" : 
-      for(product of products)
+      for(const product of products)
       {
-        if(product.querySelector(".product-category").textContent === "product-coffee")
+        if(product.querySelector(".product-category").textContent === "coffee")
         {
           product.classList.remove("is-hidden");
         }
@@ -33,9 +33,9 @@ document.querySelector("#categories").addEventListener("click", (event) =>
       }
       break;
     case "tea" :
-      for(product of products)
+      for(const product of products)
       {
-        if(product.querySelector(".product-category").textContent === "product-tea")
+        if(product.querySelector(".product-category").textContent === "tea")
         {
           product.classList.remove("is-hidden");
         }
@@ -46,9 +46,9 @@ document.querySelector("#categories").addEventListener("click", (event) =>
       }
       break;
     case "pastry" :
-      for(product of products)
+      for(const product of products)
       {
-        if(product.querySelector(".product-category").textContent === "product-pastry")
+        if(product.querySelector(".product-category").textContent === "pastry")
         {
           product.classList.remove("is-hidden");
         }
@@ -146,7 +146,7 @@ function createProductCard(product)
   productAddButton.classList.add("product-add");
 
   productName.textContent = product.name;
-  productCategory.textContent = `product-${product.category}`;
+  productCategory.textContent = `${product.category}`;
   productPrice.textContent = formatPrice(product.price);
   productAddButton.textContent = "Ajouter";
 
