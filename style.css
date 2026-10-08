@@ -51,10 +51,6 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-.is-hidden {
-  display: none;
-}
-
 /* ---------- En-tête ---------- */
 
 .site-header {
@@ -143,6 +139,11 @@ input:focus-visible {
   border-radius: var(--radius);
   box-shadow: 0 1px 0 var(--line), 0 6px 18px -12px rgba(46, 29, 20, 0.35);
   overflow: hidden;
+}
+
+/* Doit être mis après product, sinon rien n'est caché */
+.is-hidden {
+  display: none;
 }
 
 .product-category {

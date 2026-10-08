@@ -8,71 +8,62 @@ const categories = ["coffee", "tea", "pastry"];
 
 document.querySelector("#categories").addEventListener("click", (event) =>
 {
-  //Trouver comment récupérer tous les  parents des product-category === coffee/tea/pastry
-  const products =  document.querySelector(".product");
-  const coffees = products.querySelectorAll(".coffee");
-  const teas = products.querySelectorAll(".tea");
-  const pastries = products.querySelectorAll(".pastry");
+  //is-hidden est bien ajouté mais rien n'est caché... Un problème avec le fichier CSS ?
+  const products =  document.querySelectorAll(".product");
   
-  if(event.target.value === "all")
+  document.querySelector(".is-active").classList.remove("is-active");
+  event.target.classList.add("is-active");
+  switch(event.target.value)
   {
-    for(coffeeProduct of coffees)
-    {
-      coffeeProduct.classList.remove("is-hidden");
-    }
-    for(teaProduct of teas)
-    {
-      teaProduct.classList.remove("is-hidden");
-    }
-    for(pastryProduct of pastries)
-    {
-      pastryProduct.classList.remove("is-hidden");
-    }
-  }
-  else if (event.target.value === "coffee")
-  { 
-    for(coffeeProduct of coffees)
-    {
-      coffeeProduct.classList.remove("is-hidden");
-    }
-    for(teaProduct of teas)
-    {
-      teaProduct.classList.add("is-hidden");
-    }
-    for(pastryProduct of pastries)
-    {
-      pastryProduct.classList.add("is-hidden");
-    }
-  }
-  else if(event.target.value === "tea")
-  {
-    for(coffeeProduct of coffees)
-    {
-      coffeeProduct.classList.add("is-hidden");
-    }
-    for(teaProduct of teas)
-    {
-      teaProduct.classList.remove("is-hidden");
-    }
-    for(pastryProduct of pastries)
-    {
-      pastryProduct.classList.add("is-hidden");
-    }
-  }
-  else if(event.target.value === "pastry")
-  {
-    for(coffeeProduct of coffees)
-    {
-      coffeeProduct.classList.add("is-hidden");
-    }
-    for(teaProduct of teas)
-    {
-      teaProduct.classList.add("is-hidden");
-    }
-    for(pastryProduct of pastries)
-    {
-      pastryProduct.classList.remove("is-hidden");
-    }
+    case "all" :
+      for(product of products)
+      {
+        product.classList.remove("is-hidden");
+      }
+      break;
+    case "coffee" : 
+      for(product of products)
+      {
+        if(product.querySelector(".product-category").textContent === "product-coffee")
+        {
+          product.classList.remove("is-hidden");
+          console.log("Café", product);
+        }
+        else
+        {
+          product.classList.add("is-hidden");
+          console.log("Autre", product);
+        } 
+      }
+      break;
+    case "tea" :
+      for(product of products)
+      {
+        if(product.querySelector(".product-category").textContent === "product-tea")
+        {
+          product.classList.remove("is-hidden");
+        }
+        else
+        {
+          product.classList.add("is-hidden");
+        } 
+      }
+      break;
+    case "pastry" :
+      for(product of products)
+      {
+        if(product.querySelector(".product-category").textContent === "product-pastry")
+        {
+          product.classList.remove("is-hidden");
+        }
+        else
+        {
+          product.classList.add("is-hidden");
+        } 
+      }
+      break;
+      default :
+        throw new Error("Illegal argument, unknown product category");   
   }
 });
 
@@ -218,7 +209,7 @@ function createProductCard(product)
   productAddButton.classList.add("product-add");
 
   productName.textContent = product.name;
-  productCategory.textContent = product.category;
+  productCategory.textContent = `product-${product.category}`;
   productPrice.textContent = formatPrice(product.price);
   productAddButton.textContent = "Ajouter";
 
