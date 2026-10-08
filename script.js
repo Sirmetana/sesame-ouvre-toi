@@ -9,6 +9,7 @@ const categories = ["coffee", "tea", "pastry"];
 const promoCode = "BARISTA";
 
 let promo = false;
+let nbCheckouts = 0;
 
 document.querySelector("#categories").addEventListener("click", (event) =>
 {
@@ -81,22 +82,40 @@ document.querySelector("#promo-form").addEventListener("submit", (event) =>
     promo = false;
     document.querySelector("#promo-message").textContent = "Code inconnu. N'essayez pas de tricher !";
   }
-  order.getSubTotal();
   document.querySelector("#promo-code").value = "";
+  order.getSubTotal();
 });
 
-// document.querySelector("#promo-form").addEventListener("submit", (event) =>
-// {
+document.querySelector("#checkout").addEventListener("click", (event) =>
+{
+  event.preventDefault();
+  console.log("Checkout");
+  
+  if(order.lines.length !=0)
+  {
+    const total = parseInt(document.querySelector("#ticket-total").textContent);
 
-// });
+    order.lines.splice(0, order.lines.length);
+    const ticketLines = document.querySelector("#ticket-lines");
+    ticketLines.childNodes.forEach( (child) => ticketLines.removeChild(child));
+    order.getSubTotal();
+
+    promo = false;
+    nbCheckouts ++;
+    document.querySelector("#promo-code").value = "";
+    document.querySelector("#customer-name").value = "";
+    document.querySelector("#ticket-empty").classList.remove("is-hidden");
+    document.querySelector("#ticket-title").value = `Ticket n°${nbCheckouts}`;
+
+  }
+});
 
 const order =
 {
   lines: [],
   customer: "",
   add: function (product) 
-  {  
-    const subTotalSpan = document.querySelector("#ticket-total");
+  {
     let found = false;
 
     if(!product) throw new Error("Illegal argument, product added to the order is null.");
@@ -145,7 +164,7 @@ const order =
         document.querySelector("#ticket-lines").removeChild(line);
         const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
         if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
-        subTotalSpan.textContent = this.getSubTotal();
+        this.getSubTotal();
         document.querySelector("#ticket-empty").classList.remove("is-hidden");
       });
 
@@ -157,7 +176,7 @@ const order =
           lineQuantity.textContent = (currentQuantity -1) + " X";
           const indexToReduce = this.lines.findIndex((element) => element.id === product.id);
           this.lines[indexToReduce].quantity = parseInt(this.lines[indexToReduce].quantity) - 1;
-          subTotalSpan.textContent = this.getSubTotal();
+          this.getSubTotal();
         }
         else
         {
@@ -165,7 +184,7 @@ const order =
           document.querySelector("#ticket-lines").removeChild(line);
           const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
           if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
-          subTotalSpan.textContent = this.getSubTotal();
+          this.getSubTotal();
           document.querySelector("#ticket-empty").classList.remove("is-hidden");
         }
       });
@@ -185,7 +204,7 @@ const order =
       }
       
     }
-    subTotalSpan.textContent = this.getSubTotal();
+    this.getSubTotal();
   },
   remove: function(id)
   {//Comment récupérer line à partir de l'id seul ?
@@ -206,6 +225,7 @@ const order =
     }
     const discount = subTotal * 0.1 * promo;
     document.querySelector("#ticket-discount").textContent = formatPrice(parseInt(discount));
+    document.querySelector("#ticket-total").textContent = formatPrice(subTotal - discount);
     return formatPrice(subTotal - discount);
   }
 }
@@ -215,7 +235,6 @@ const form = document.querySelector("#customer-form").addEventListener("submit",
   event.preventDefault();
   const customerName = document.querySelector("#customer-name");
   const customerError = document.querySelector("#customer-error");
-  console.log(customerName);  
   if(!customerName.value || customerName.value.replaceAll(" ", "") === "")
   {  
     customerError.textContent = "Vous n'avez écris aucun nom. Veuillez réessayer";
