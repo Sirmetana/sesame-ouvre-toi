@@ -8,7 +8,6 @@ const categories = ["coffee", "tea", "pastry"];
 
 document.querySelector("#categories").addEventListener("click", (event) =>
 {
-  //is-hidden est bien ajouté mais rien n'est caché... Un problème avec le fichier CSS ?
   const products =  document.querySelectorAll(".product");
   
   document.querySelector(".is-active").classList.remove("is-active");
@@ -27,12 +26,10 @@ document.querySelector("#categories").addEventListener("click", (event) =>
         if(product.querySelector(".product-category").textContent === "product-coffee")
         {
           product.classList.remove("is-hidden");
-          console.log("Café", product);
         }
         else
         {
           product.classList.add("is-hidden");
-          console.log("Autre", product);
         } 
       }
       break;
@@ -70,6 +67,7 @@ document.querySelector("#categories").addEventListener("click", (event) =>
 const order =
 {
   lines: [],
+  customer: "",
   add: function (product) 
   {  
     const subTotalSpan = document.querySelector("#ticket-total");
@@ -183,6 +181,26 @@ const order =
     return formatPrice(subTotal);
   }
 }
+
+const form = document.querySelector("#customer-form").addEventListener("submit", (event) =>
+{
+  event.preventDefault();
+  const customerName = document.querySelector("#customer-name");
+  const customerError = document.querySelector("#customer-error");
+  console.log(customerName);  
+  if(!customerName.value || customerName.value.replaceAll(" ", "") === "")
+  {  
+    customerError.textContent = "Vous n'avez écris aucun nom. Veuillez réessayer";
+  }
+  else
+  {
+    customerError.textContent = "";
+    order.customer = customerName.value;
+    document.querySelector("#ticket-title").textContent = `Ticket de ${customerName.value}`;
+    customerName.value = "";
+  }
+})
+
 
 function createProductCard(product)
 {
