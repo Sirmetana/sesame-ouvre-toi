@@ -36,6 +36,8 @@ export const order =
             linePrice.textContent = formatPrice(product.price);
             lineRemoveButton.textContent = "X";
             lineRemoveOneButton.textContent = "-";
+
+            line.dataset.id = product.id;
             
             line.appendChild(lineName);
             line.appendChild(lineQuantity);
@@ -44,32 +46,22 @@ export const order =
             line.appendChild(lineRemoveOneButton);
         
             lineRemoveButton.addEventListener("click", (event ) =>
-            {//TODO
-                //this.remove(product.id);
-                document.querySelector("#ticket-lines").removeChild(line);
-                const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
-                if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
-                this.getSubTotal();
-                document.querySelector("#ticket-empty").classList.remove("is-hidden");
+            {
+                this.remove(product.id);
             });
             lineRemoveOneButton.addEventListener("click", (event ) =>
             {
                 const currentQuantity = parseInt(lineQuantity.textContent);
                 if(currentQuantity > 1) 
                 {
-                lineQuantity.textContent = (currentQuantity -1) + " X";
-                const indexToReduce = this.lines.findIndex((element) => element.id === product.id);
-                this.lines[indexToReduce].quantity = parseInt(this.lines[indexToReduce].quantity) - 1;
-                this.getSubTotal();
+                    lineQuantity.textContent = (currentQuantity -1) + " X";
+                    const indexToReduce = this.lines.findIndex((element) => element.id === product.id);
+                    this.lines[indexToReduce].quantity = parseInt(this.lines[indexToReduce].quantity) - 1;
+                    this.getSubTotal();
                 }
                 else
                 {
-                    //this.remove(id);
-                    document.querySelector("#ticket-lines").removeChild(line);
-                    const indexToRemove = this.lines.findIndex((element) => element.id === product.id);
-                    if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);    
-                    this.getSubTotal();
-                    document.querySelector("#ticket-empty").classList.remove("is-hidden");
+                    this.remove(product.id);
                 }
             });
             document.querySelector("#ticket-empty").classList.add("is-hidden");
@@ -90,14 +82,14 @@ export const order =
         this.getSubTotal();
     },
     remove: function(id)
-    {//Comment récupérer line à partir de l'id seul ?
-        // const ticketLines = document.querySelector("#ticket-lines");
-        // const line = ticketLines.
-        // ticketLines.removeChild(line);
-        // const indexToRemove = this.lines.findIndex((element) => element.id === id);
-        // if(indexToRemove >=0) this.lines.remove(indexToRemove);
-        // subTotalSpan.textContent = this.getSubTotal();
-        // if(this.lines.length === 0) document.querySelector("#ticket-empty").classList.remove("is-hidden");
+    {
+        const line = document.querySelector(`#ticket-lines > [data-id="${id}"]`);
+        line.parentNode.removeChild(line);
+        const indexToRemove = this.lines.findIndex((element) => element.id === id);
+        if(indexToRemove >=0) this.lines.splice(indexToRemove);
+        document.querySelector("#ticket-total").textContent = this.getSubTotal();
+
+        if(this.lines.length === 0) document.querySelector("#ticket-empty").classList.remove("is-hidden");
     },
     getNbFormulas:  function ()
     {
