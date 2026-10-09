@@ -3,63 +3,37 @@ import {menu} from "./menu.js";
 import {formatPrice} from "./formatPrice.js";
 import { MAXSIZE, CATEGORIES, PROMOCODE } from "./config.js";
 
-let nbCheckouts = 0;
+let nbCheckouts = localStorage.getItem("nbCheckouts") ?? 0;
 
 document.querySelector("#categories").addEventListener("click", (event) =>
 {
   const products =  document.querySelectorAll(".product");
   
-  document.querySelector(".is-active").classList.remove("is-active");
-  event.target.classList.add("is-active");
-  switch(event.target.value)
+  if(event.target.matches("button"))
   {
-    case "all" :
-      for(const product of products)
-      {
-        product.classList.remove("is-hidden");
-      }
-      break;
-    case "coffee" : 
-      for(const product of products)
-      {
-        if(product.querySelector(".product-category").textContent === "coffee")
+    document.querySelector(".is-active").classList.remove("is-active");
+    event.target.classList.add("is-active");
+    if(event.target.value === "all")
+    {
+        for(const product of products)
         {
           product.classList.remove("is-hidden");
         }
-        else
-        {
-          product.classList.add("is-hidden");
-        } 
-      }
-      break;
-    case "tea" :
+    }
+    else if (CATEGORIES.includes(event.target.value)){
       for(const product of products)
-      {
-        if(product.querySelector(".product-category").textContent === "tea")
         {
-          product.classList.remove("is-hidden");
+          if(product.querySelector(".product-category").textContent === event.target.value)
+          {
+            product.classList.remove("is-hidden");
+          }
+          else
+          {
+            product.classList.add("is-hidden");
+          } 
         }
-        else
-        {
-          product.classList.add("is-hidden");
-        } 
-      }
-      break;
-    case "pastry" :
-      for(const product of products)
-      {
-        if(product.querySelector(".product-category").textContent === "pastry")
-        {
-          product.classList.remove("is-hidden");
-        }
-        else
-        {
-          product.classList.add("is-hidden");
-        } 
-      }
-      break;
-      default :
-        throw new Error("Illegal argument, unknown product category");   
+    }
+    else throw new Error("Illegal argument, unknown product category");   
   }
 });
 
@@ -69,11 +43,13 @@ document.querySelector("#promo-form").addEventListener("submit", (event) =>
   if(document.querySelector("#promo-code").value.toUpperCase() === PROMOCODE)
   {
     order.promo = true;
+    localStorage.setItem("promoValid", true);
     document.querySelector("#promo-message").textContent = "Code promo validé, vous profitez de -10 % !";
   }
   else
   {
     order.promo = false;
+    localStorage.setItem("promoValid", false);
     document.querySelector("#promo-message").textContent = "Code inconnu. N'essayez pas de tricher !";
   }
   document.querySelector("#promo-code").value = "";
@@ -90,20 +66,22 @@ document.querySelector("#checkout").addEventListener("click", (event) =>
     const total = parseInt(document.querySelector("#ticket-total").textContent);
 
     order.lines.splice(0, order.lines.length);
-    const ticketLines = document.querySelector("#ticket-lines");
-    ticketLines.childNodes.forEach( (child) => ticketLines.removeChild(child));
     order.getSubTotal();
 
     order.promo = false;
     nbCheckouts ++;
     document.querySelector("#promo-code").value = "";
-    document.querySelector("#customer-name").value = "";
+    document.querySelector("#promo-message").textContent = "";
+    order.promo = false;
+    document.querySelector("#customer-name").value = localStorage.getItem("customerName");
     document.querySelector("#ticket-empty").classList.remove("is-hidden");
-    document.querySelector("#ticket-title").value = `Ticket n°${nbCheckouts}`;
+    document.querySelector("#ticket-title").textContent = `Ticket n°${nbCheckouts}`;
+    localStorage.clear();
+    localStorage.setItem("nbCheckouts", nbCheckouts);
   }
 });
 
-const form = document.querySelector("#customer-form").addEventListener("submit", (event) =>
+document.querySelector("#customer-form").addEventListener("submit", (event) =>
 {
   event.preventDefault();
   const customerName = document.querySelector("#customer-name");
@@ -128,10 +106,10 @@ function createProductCard(product)
   if(product.price <=0) throw new Error("Illegal property, negative price");
   let legalCategory = false;
   for(let i = 0; i < CATEGORIES.length && !legalCategory; i++)
-    {
-      if(product.category == CATEGORIES[i] ) legalCategory = true;
-    }
-    if(!legalCategory)  throw new Error("Illegal category");
+  {
+    if(product.category === CATEGORIES[i] ) legalCategory = true;
+  }
+  if(!legalCategory)  throw new Error("Illegal category");
   
   const productArticle = document.createElement("article");
   const productCategory = document.createElement("span");
@@ -166,6 +144,29 @@ function createProductCard(product)
   document.querySelector("#menu").appendChild(productArticle);
 }
 
+function rechargeValues()
+{
+  const lines = JSON.parse(localStorage.getItem("lines"));
+  if(order.promo) document.querySelector("#promo-message").textContent = "Code promo validé, vous profitez de -10 % !";
+
+  if(localStorage.getItem("customerName")) 
+  {
+    document.querySelector("#ticket-title").textContent = `Ticket de ${customerName}`
+  }
+  if(lines || (lines ? lines.length : false) ) 
+  {
+    order.lines = lines;
+    order.createTicketLines();
+    document.querySelector("#ticket-empty").classList.add("is-hidden");
+  }
+  else
+  {
+    document.querySelector("#ticket-empty").classList.remove("is-hidden");
+  }
+  order.getSubTotal();
+
+}
+
 function renderMenu()
 {
   const menuContainer = document.querySelector("#menu");
@@ -183,6 +184,8 @@ function renderMenu()
 }
 
 // Étape 1 · Afficher la carte
+// localStorage.clear();
+rechargeValues();
 renderMenu();
 
 
