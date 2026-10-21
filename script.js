@@ -100,6 +100,12 @@ document.querySelector("#customer-form").addEventListener("submit", (event) =>
   }
 })
 
+document.querySelector("#ai-order-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  document.querySelector("#ai-order-button").disabled = true;
+  aiOrder();
+});
+
 function createProductCard(product)
 {
   if(!product) throw new Error("Illegal argument, no product given.");
@@ -184,15 +190,24 @@ function renderMenu()
   }
 }
 
-const menuForPrompt = JSON.stringify(menu.map( (item) => ({id:item.id, name:item.name}) ));
-const orderprompt = {role:"system", content:`Tu gères la prise de commandes du café Sésame dont ceci est le site. La carte : ${menuForPrompt}. Ensuite, tu devras lire dans les prompts suivants les commandes des clients et y associer les produits de la carte correspondants.`};
-const firstClientPrompt = {role:"user", content:"Bonjour. Je voudrais un cappuccino et un cookie au sésame, s'il-vous-plait."};
-const secondClientPrompt = {role:"user", content:"Salut. Je vais te prendre deux cappu et un cookie pépites."};
+async function aiOrder()
+{
+  const menuForPrompt = JSON.stringify(menu.map( (item) => ({id:item.id, name:item.name}) ));
+  const orderPrompt = {role:"system", content:`Tu gères la prise de commandes du café Sésame dont ceci est le site. La carte : ${menuForPrompt}. Ensuite, tu devras lire dans les prompts suivants les commandes des clients et y associer les produits de la carte correspondants. N'ajoute rien si le produit n'existe pas dans la carte.`};
+  const inputText = document.querySelector("#ai-order-message");
+  const clientPrompt = {role:"user", content:`${inputText.value}`};
+  
+  const results = JSON.parse(await askModel([orderPrompt, clientPrompt]));
+  console.log(results);
+  console.log(results.orderItems);
+  // for(result in JSON.parse(results))
+  // {
+  //   break;
+  // }
+  inputText.value = "";
+  document.querySelector("#ai-order-button").disabled = false;
+}
 
-
-const fullPrompt = [orderprompt, secondClientPrompt];
-
-console.log(await askModel(fullPrompt));
 
 // Étape 1 · Afficher la carte
 // localStorage.clear();
