@@ -196,14 +196,29 @@ async function aiOrder()
   const orderPrompt = {role:"system", content:`Tu gères la prise de commandes du café Sésame dont ceci est le site. La carte : ${menuForPrompt}. Ensuite, tu devras lire dans les prompts suivants les commandes des clients et y associer les produits de la carte correspondants. N'ajoute rien si le produit n'existe pas dans la carte.`};
   const inputText = document.querySelector("#ai-order-message");
   const clientPrompt = {role:"user", content:`${inputText.value}`};
+  const errorText = document.querySelector("#ai-order-error");
+  errorText.textContent = "";
   
   const results = JSON.parse(await askModel([orderPrompt, clientPrompt]));
-  console.log(results);
-  console.log(results.orderItems);
-  // for(result in JSON.parse(results))
-  // {
-  //   break;
-  // }
+  for(let i = 0; i < results.orderItems.length; i++)
+  {
+    const foundItem = menu.find((item) => item.id === results.orderItems[i].id)
+    if(foundItem != undefined)
+    {
+      if(foundItem.available)
+      {
+        order.add(foundItem);
+      }
+      else
+      {
+        errorText.textContent = "Le produit entré n'est plus en stock."
+      }
+    }
+    else
+    {
+      errorText.textContent = "Le produit entré n'existe pas."
+    }
+  }
   inputText.value = "";
   document.querySelector("#ai-order-button").disabled = false;
 }
