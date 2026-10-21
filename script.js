@@ -1,5 +1,6 @@
 import {order} from "./order.js";
 import {menu} from "./menu.js";
+import {askModel} from "./modelCommunication.js";
 import {formatPrice} from "./formatPrice.js";
 import { MAXSIZE, CATEGORIES, PROMOCODE } from "./config.js";
 
@@ -182,6 +183,16 @@ function renderMenu()
     createProductCard(menu[i]);
   }
 }
+
+const menuForPrompt = JSON.stringify(menu.map( (item) => ({id:item.id, name:item.name}) ));
+const orderprompt = {role:"system", content:`Tu gères la prise de commandes du café Sésame dont ceci est le site. La carte : ${menuForPrompt}. Ensuite, tu devras lire dans les prompts suivants les commandes des clients et y associer les produits de la carte correspondants.`};
+const firstClientPrompt = {role:"user", content:"Bonjour. Je voudrais un cappuccino et un cookie au sésame, s'il-vous-plait."};
+const secondClientPrompt = {role:"user", content:"Salut. Je vais te prendre deux cappu et un cookie pépites."};
+
+
+const fullPrompt = [orderprompt, secondClientPrompt];
+
+console.log(await askModel(fullPrompt));
 
 // Étape 1 · Afficher la carte
 // localStorage.clear();

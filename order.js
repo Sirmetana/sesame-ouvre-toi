@@ -1,5 +1,5 @@
 import {formatPrice} from "./formatPrice.js";
-import { MAXSIZE, CATEGORIES } from "./config.js";
+import { MAXSIZE } from "./config.js";
 
 export const order =
 {
@@ -91,8 +91,6 @@ export const order =
     },
     remove: function(id)
     {
-        // const line = document.querySelector(`#ticket-lines > [data-id="${id}"]`);
-        // line.parentNode.removeChild(line);
         const indexToRemove = this.lines.findIndex((element) => element.id === id);
         if(indexToRemove >=0) this.lines.splice(indexToRemove, 1);
         this.createTicketLines();
